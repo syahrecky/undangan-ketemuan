@@ -22,6 +22,15 @@
             overflow-x: hidden;
             padding: 20px;
             color: #4a4a4a;
+            transition: all 0.5s ease;
+        }
+
+        #main-content {
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1 {
@@ -29,7 +38,6 @@
             font-weight: 700;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
-            text-align: center;
         }
 
         .btn-container {
@@ -68,17 +76,12 @@
             border: 2px solid #ff4d6d;
         }
 
-        #btnTolak:hover {
-            background-color: #fff0f3;
-        }
-
         #tanggal_ketemu {
             margin-top: 20px;
             width: 100%;
             max-width: 300px;
         }
 
-        /* Styling Flatpickr Input */
         #tanggalRange {
             width: 100%;
             padding: 12px;
@@ -89,55 +92,64 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             font-weight: 600;
             color: #ff4d6d;
+            background: white;
         }
 
-        /* Styling Modal */
+        #pesan-final {
+            display: none;
+            color: #ff4d6d;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         .modal-content {
             border-radius: 20px;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             background-color: #fff9fa;
         }
 
         .modal-header {
-            border-bottom: 1px solid #ffe5ec;
             background-color: #ffe5ec;
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
         }
 
-        .modal-title {
-            color: #ff4d6d;
-            font-weight: 700;
-        }
-
-        .modal-footer {
-            border-top: 1px solid #ffe5ec;
-        }
+        .modal-title { color: #ff4d6d; font-weight: 700; }
 
         .btn-success {
             background-color: #ff4d6d !important;
             border-color: #ff4d6d !important;
             border-radius: 20px;
-            padding: 8px 25px;
-        }
-
-        .btn-success:disabled {
-            background-color: #ffb3c1 !important;
-            border-color: #ffb3c1 !important;
         }
     </style>
 </head>
 <body>
 
-    <h1>Ayo ketemuan di bulan <b>OKTOBER</b> !!! 🌸</h1>
+    <audio id="suaraTerompet" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/977/977-preview.mp3" type="audio/mpeg">
+        Browser kamu tidak mendukung pemutar musik.
+    </audio>
 
-    <div class="btn-container">
-        <button type="button" id="btnAcc" onclick="accFunction()">Ayo, aku sudah tidak sabar !!!</button>
-        <button type="button" id="btnTolak" onclick="tolakFunction()">Ndak mau &#128529;</button>
+    <div id="pesan-final">
+        Tunggu di tanggal 31 Oktober ya! ❤️✨
     </div>
 
-    <div id="tanggal_ketemu"></div>
+    <div id="main-content">
+        <h1 id="judulUtama">Ayo ketemuan di bulan <b>OKTOBER</b> !!! 🌸</h1>
+
+        <div class="btn-container">
+            <button type="button" id="btnAcc" onclick="accFunction()">Ayo, aku sudah tidak sabar !!!</button>
+            <button type="button" id="btnTolak" onclick="tolakFunction()">Ndak mau &#128529;</button>
+        </div>
+
+        <div id="tanggal_ketemu"></div>
+    </div>
 
     <div class="modal fade" id="modalPernyataan" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -174,26 +186,19 @@
         const modalPernyataan = new bootstrap.Modal(document.getElementById('modalPernyataan'));
         let jumlah_klik = 0;
 
-        // Custom Fungsi Alert Biar Menggemaskan
         function cuteAlert(pesan, icon = 'info') {
             return Swal.fire({
                 text: pesan,
                 icon: icon,
                 confirmButtonColor: '#ff4d6d',
-                confirmButtonText: 'Okey~',
-                customClass: {
-                    popup: 'border-radius-20'
-                }
+                confirmButtonText: 'Okey~'
             });
         }
 
         function tolakFunction(){
             jumlah_klik++;
-
-            // Posisi random
             let maxX = window.innerWidth - 150;
             let maxY = window.innerHeight - 50;
-
             let randomX = Math.floor(Math.random() * maxX);
             let randomY = Math.floor(Math.random() * maxY);
 
@@ -202,7 +207,6 @@
             btn.style.left = randomX + "px";
             btn.style.top = randomY + "px";
 
-            // Alert setelah klik tertentu dengan tampilan lucu
             if (jumlah_klik == 3 ) {
                 cuteAlert("Sebegitu ndak mau nya sampai " + jumlah_klik + " kali ditolak? 😔", 'question');
             } else if (jumlah_klik == 4){
@@ -216,7 +220,7 @@
         }
 
         function accFunction(){
-            document.getElementById("tanggal_ketemu").innerHTML = `<input type="text" id="tanggalRange" placeholder="💖 Pilih tanggal ketemuan 💖">`;
+            document.getElementById("tanggal_ketemu").innerHTML = `<input type="text" id="tanggalRange" placeholder="💖 Pilih tanggal ketemuan 💖" readonly>`;
 
             flatpickr("#tanggalRange", {
                 mode: "range",
@@ -227,10 +231,7 @@
                     if (selectedDates.length === 2) {
                         let start = selectedDates[0];
                         let end = selectedDates[1];
-
-                        let diffDays = Math.ceil(
-                            (end - start) / (1000 * 60 * 60 * 24)
-                        );                      
+                        let diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));                      
 
                         if (diffDays != 2) {
                             cuteAlert("Minimal pilih rentang 3 hari 😒", 'warning');
@@ -238,17 +239,11 @@
                             return;
                         }
 
-                        const opsi = {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric'
-                        };
-
+                        const opsi = { day: '2-digit', month: 'long', year: 'numeric' };
                         const mulai = selectedDates[0].toLocaleDateString('id-ID', opsi);
                         const akhir = selectedDates[1].toLocaleDateString('id-ID', opsi);
 
                         document.getElementById("pernyataan_tanggal").innerHTML = `pada tanggal <b>${mulai}</b> sampai <b>${akhir}</b> ❤️`;
-
                         modalPernyataan.show();
                     }
                 }
@@ -261,12 +256,28 @@
 
         document.getElementById('btnSubmit').addEventListener('click', function() {
             modalPernyataan.hide();
+            const terompet = document.getElementById('suaraTerompet');
+
             Swal.fire({
-                title: 'Yeay! ✨',
+                title: 'Yeay! ✨🎺',
                 text: 'Sampai ketemu ❤️',
                 icon: 'success',
-                showConfirmButton: false,
-                timer: 3000
+                showConfirmButton: true,
+                confirmButtonColor: '#ff4d6d',
+                allowOutsideClick: false,
+                timer: 4000, // Menutup otomatis dalam 4 detik (4000 milidetik)
+                timerProgressBar: true, // Garis loading indikator waktu di bagian bawah alert
+                didOpen: () => {
+                    terompet.play();
+                }
+            }).then((result) => {
+                // Berhenti musik kapan pun alert ditutup (baik lewat timer ataupun klik tombol)
+                terompet.pause();
+                terompet.currentTime = 0;
+
+                // Tampilkan pesan final dan bersihkan layar inputan
+                document.getElementById('main-content').style.display = 'none';
+                document.getElementById('pesan-final').style.display = 'block';
             });
         });
     </script>
