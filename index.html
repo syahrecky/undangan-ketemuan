@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
+    <title>Ayo Ketemuan!</title>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 20px;
+            color: #4a4a4a;
+        }
+
+        h1 {
+            color: #ff4d6d;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        #btnAcc {
+            background-color: #ff4d6d;
+            color: white;
+        }
+
+        #btnAcc:hover {
+            background-color: #ff758f;
+            transform: scale(1.05);
+        }
+
+        #btnTolak {
+            background-color: #ffffff;
+            color: #ff4d6d;
+            border: 2px solid #ff4d6d;
+        }
+
+        #btnTolak:hover {
+            background-color: #fff0f3;
+        }
+
+        #tanggal_ketemu {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        /* Styling Flatpickr Input */
+        #tanggalRange {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffb3c1;
+            border-radius: 15px;
+            text-align: center;
+            outline: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            font-weight: 600;
+            color: #ff4d6d;
+        }
+
+        /* Styling Modal */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background-color: #fff9fa;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #ffe5ec;
+            background-color: #ffe5ec;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .modal-title {
+            color: #ff4d6d;
+            font-weight: 700;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #ffe5ec;
+        }
+
+        .btn-success {
+            background-color: #ff4d6d !important;
+            border-color: #ff4d6d !important;
+            border-radius: 20px;
+            padding: 8px 25px;
+        }
+
+        .btn-success:disabled {
+            background-color: #ffb3c1 !important;
+            border-color: #ffb3c1 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ayo ketemuan di bulan <b>OKTOBER</b> !!! 🌸</h1>
+
+    <div class="btn-container">
+        <button type="button" id="btnAcc" onclick="accFunction()">Ayo, aku sudah tidak sabar !!!</button>
+        <button type="button" id="btnTolak" onclick="tolakFunction()">Ndak mau &#128529;</button>
+    </div>
+
+    <div id="tanggal_ketemu"></div>
+
+    <div class="modal fade" id="modalPernyataan" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pernyataan ❤️</h5>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Saya berjanji akan datang tepat waktu, tidak membatalkan
+                        secara sepihak, dan siap menghabiskan waktu bersama <span id="pernyataan_tanggal"></span>
+                    </p>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="setujuCheck">
+                        <label class="form-check-label" for="setujuCheck">
+                            Saya setuju dengan pernyataan di atas
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="btnSubmit" class="btn btn-success" disabled>
+                        Submit ❤️
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        const modalPernyataan = new bootstrap.Modal(document.getElementById('modalPernyataan'));
+        let jumlah_klik = 0;
+
+        // Custom Fungsi Alert Biar Menggemaskan
+        function cuteAlert(pesan, icon = 'info') {
+            return Swal.fire({
+                text: pesan,
+                icon: icon,
+                confirmButtonColor: '#ff4d6d',
+                confirmButtonText: 'Okey~',
+                customClass: {
+                    popup: 'border-radius-20'
+                }
+            });
+        }
+
+        function tolakFunction(){
+            jumlah_klik++;
+
+            // Posisi random
+            let maxX = window.innerWidth - 150;
+            let maxY = window.innerHeight - 50;
+
+            let randomX = Math.floor(Math.random() * maxX);
+            let randomY = Math.floor(Math.random() * maxY);
+
+            let btn = document.getElementById("btnTolak");
+            btn.style.position = "absolute";
+            btn.style.left = randomX + "px";
+            btn.style.top = randomY + "px";
+
+            // Alert setelah klik tertentu dengan tampilan lucu
+            if (jumlah_klik == 3 ) {
+                cuteAlert("Sebegitu ndak mau nya sampai " + jumlah_klik + " kali ditolak? 😔", 'question');
+            } else if (jumlah_klik == 4){
+                cuteAlert("Pokok harus mau, nggak boleh nggak 😡", 'error');
+            } else if (jumlah_klik == 5){
+                btn.remove();
+                setTimeout(() => {
+                    cuteAlert("Mampus ku hapus tombolnya 😝", 'success');
+                }, 1);
+            }            
+        }
+
+        function accFunction(){
+            document.getElementById("tanggal_ketemu").innerHTML = `<input type="text" id="tanggalRange" placeholder="💖 Pilih tanggal ketemuan 💖">`;
+
+            flatpickr("#tanggalRange", {
+                mode: "range",
+                minDate : "2026-10-30",
+                maxDate : "2026-11-01",
+                dateFormat: "Y-m-d",
+                onClose: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        let start = selectedDates[0];
+                        let end = selectedDates[1];
+
+                        let diffDays = Math.ceil(
+                            (end - start) / (1000 * 60 * 60 * 24)
+                        );                      
+
+                        if (diffDays != 2) {
+                            cuteAlert("Minimal pilih rentang 3 hari 😒", 'warning');
+                            instance.clear();
+                            return;
+                        }
+
+                        const opsi = {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric'
+                        };
+
+                        const mulai = selectedDates[0].toLocaleDateString('id-ID', opsi);
+                        const akhir = selectedDates[1].toLocaleDateString('id-ID', opsi);
+
+                        document.getElementById("pernyataan_tanggal").innerHTML = `pada tanggal <b>${mulai}</b> sampai <b>${akhir}</b> ❤️`;
+
+                        modalPernyataan.show();
+                    }
+                }
+            });
+        }
+
+        document.getElementById('setujuCheck').addEventListener('change', function() {
+            document.getElementById('btnSubmit').disabled = !this.checked;
+        });
+
+        document.getElementById('btnSubmit').addEventListener('click', function() {
+            modalPernyataan.hide();
+            Swal.fire({
+                title: 'Yeay! ✨',
+                text: 'Sampai ketemu ❤️',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    </script>
+</body>
+</html>
